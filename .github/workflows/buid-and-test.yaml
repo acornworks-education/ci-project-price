@@ -29,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
+        name: Dispatch a Price repository workflow
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
