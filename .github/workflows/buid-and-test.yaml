@@ -28,9 +28,17 @@ jobs:
     # needs: build-and-test-node
     runs-on: ubuntu-latest
     steps:
-      - uses: benc-uk/workflow-dispatch@v1
+      - uses: actions/github-script@v6
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          workflow: '44471956'
-          repo: acornworks-education/ci-project-strategy
-          ref: feature/build-and-test
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+            owner: 'acornworks-education',
+            repo: 'ci-project-strategy',
+            workflow_id: '44471956',
+            ref: 'feature/build-and-test'
+            })          
+          # token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          # workflow: '44471956'
+          # repo: acornworks-education/ci-project-strategy
+          # ref: feature/build-and-test
