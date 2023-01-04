@@ -1,0 +1,32 @@
+name: build-and-test-price-service
+run-name: Build and test for Price service
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-test-price-serivce:
+    name: Build and test a Node.js source code
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v3
+      with:
+        node-version: 18
+    - name: Run an Yarn install command
+      uses: borales/actions-yarn@v4
+      with:
+        cmd: install
+    - uses: ArtiomTr/jest-coverage-report-action@v2
+      name: Run Jest command
+      id: coverage
+      with:
+          output: report-markdown
+    - uses: marocchino/sticky-pull-request-comment@v2
+      if: ${{ github.event_name == 'pull_request' }}
+      name: Add a comment in pull requests
+      with:
+          message: ${{ steps.coverage.outputs.report }}    
+
+    
