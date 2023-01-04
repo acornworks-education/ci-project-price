@@ -38,8 +38,5 @@ jobs:
             repo: 'ci-project-strategy',
             workflow_id: 'buid-and-test.yaml',
             ref: 'feature/build-and-test'
-            })          
-          # token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          # workflow: '44471956'
-          # repo: acornworks-education/ci-project-strategy
-          # ref: feature/build-and-test
+            })
+            
