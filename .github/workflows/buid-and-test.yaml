@@ -4,37 +4,32 @@ on:
   # The workflow runs when a pull request is opened or reopened or when the head branch of the pull request is updated. 
   - pull_request
 jobs:
-  build-and-test-node:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      # https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
-      - name: Use Node.js 14.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14.x
-      - name: Run install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install
-      - uses: ArtiomTr/jest-coverage-report-action@v2
-        id: coverage
-        with:
-            output: report-markdown
-      - uses: marocchino/sticky-pull-request-comment@v2
-        with:
-            message: ${{ steps.coverage.outputs.report }}
+  # build-and-test-node:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     # https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+  #     - name: Use Node.js 14.x
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 14.x
+  #     - name: Run install
+  #       uses: borales/actions-yarn@v4
+  #       with:
+  #         cmd: install
+  #     - uses: ArtiomTr/jest-coverage-report-action@v2
+  #       id: coverage
+  #       with:
+  #           output: report-markdown
+  #     - uses: marocchino/sticky-pull-request-comment@v2
+  #       with:
+  #           message: ${{ steps.coverage.outputs.report }}
   trigger-strategy-workflow:
-    needs: build-and-test-node
+    # needs: build-and-test-node
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v6
+      - uses: benc-uk/workflow-dispatch@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-            owner: 'acornworks-education',
-            repo: 'ci-project-strategy',
-            workflow_id: 'build-and-test.yaml',
-            ref: 'feature/build-and-test'
-            })
+          workflow: build-and-test-java
+          repo: acornworks-education/ci-project-strategy
+          ref: feature/build-and-test
