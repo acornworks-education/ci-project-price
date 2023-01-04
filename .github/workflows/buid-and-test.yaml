@@ -7,33 +7,35 @@ on:
     branches:
       - main
 jobs:
-  # build-and-test-node:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     # https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
-  #     - name: Use Node.js 14.x
-  #       uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 14.x
-  #     - name: Run install
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: install
-  #     - uses: ArtiomTr/jest-coverage-report-action@v2
-  #       id: coverage
-  #       with:
-  #           output: report-markdown
-  #     - uses: marocchino/sticky-pull-request-comment@v2
-  #       with:
-  #           message: ${{ steps.coverage.outputs.report }}
-  trigger-strategy-workflow:
-    # needs: build-and-test-node
+  build-and-test-node:
+    name: Build and test a Node.js source code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      # https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14.x
+      - name: Run install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+      - uses: ArtiomTr/jest-coverage-report-action@v2
+        id: coverage
+        with:
+            output: report-markdown
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+            message: ${{ steps.coverage.outputs.report }}
+  dispatch-strategy-workflow:
+    name: Dispatch a Price repository workflow
+    needs: build-and-test-node
     if: ${{ github.ref_name == 'main' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
-        name: Dispatch a Price repository workflow
+        name: Dispatch a Strategy repository workflow
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
