@@ -35,7 +35,7 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
             owner: 'acornworks-education',
             repo: 'ci-project-strategy',
-            workflow_id: '44471956',
+            workflow_id: 'buid-and-test.yaml',
             ref: 'feature/build-and-test'
             })          
           # token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
