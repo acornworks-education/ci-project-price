@@ -4,7 +4,7 @@ on:
   # The workflow runs when a pull request is opened or reopened or when the head branch of the pull request is updated. 
   - pull_request
 jobs:
-  build-and-test-java:
+  build-and-test-node:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,4 +23,18 @@ jobs:
             output: report-markdown
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
-            message: ${{ steps.coverage.outputs.report }}      
+            message: ${{ steps.coverage.outputs.report }}
+  trigger-strategy-workflow:
+    needs: build-and-test-node
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+            owner: 'acornworks-education',
+            repo: 'ci-project-strategy',
+            workflow_id: 'build-and-test.yml',
+            ref: 'feature/build-and-test'
+            })
