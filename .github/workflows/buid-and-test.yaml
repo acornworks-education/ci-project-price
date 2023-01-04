@@ -30,6 +30,6 @@ jobs:
     steps:
       - uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: build-and-test-java
+          workflow: '44471956'
           repo: acornworks-education/ci-project-strategy
           ref: feature/build-and-test
