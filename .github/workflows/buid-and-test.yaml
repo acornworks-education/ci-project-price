@@ -2,7 +2,10 @@ name: build-and-test-node
 run-name: Build and test for Node.js
 on:
   # The workflow runs when a pull request is opened or reopened or when the head branch of the pull request is updated. 
-  - pull_request
+  pull_request:
+  push:
+    branches:
+      - main
 jobs:
   # build-and-test-node:
   #   runs-on: ubuntu-latest
@@ -26,6 +29,7 @@ jobs:
   #           message: ${{ steps.coverage.outputs.report }}
   trigger-strategy-workflow:
     # needs: build-and-test-node
+    if: ${{ github.ref_name == 'main' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
@@ -39,4 +43,3 @@ jobs:
             workflow_id: 'buid-and-test.yaml',
             ref: 'feature/build-and-test'
             })
-            
