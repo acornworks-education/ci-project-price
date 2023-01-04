@@ -28,5 +28,46 @@ jobs:
       name: Add a comment in pull requests
       with:
           message: ${{ steps.coverage.outputs.report }}    
-
-    
+  slack-failure-notification:
+    needs: build-and-test-price-serivce
+    if: ${{ always() && github.ref_name == 'main' && contains(needs.*.result, 'failure') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send a notification to Github channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          channel-id: '#github_failure'
+          payload: |
+            {
+              "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+  dispatch-strategy-workflow:
+    name: Dispatch a Strategy service repository workflow
+    needs: build-and-test-price-serivce
+    if: ${{ github.ref_name == 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        name: Dispatch a Strategy service repository workflow
+        with:
+          github-token: ${{ secrets.WORKFLOW_PAT }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'acornworks-education',
+              repo: 'ci-project-strategy',
+              workflow_id: 'build-and-test.yaml',
+              ref: 'main'
+            })    
