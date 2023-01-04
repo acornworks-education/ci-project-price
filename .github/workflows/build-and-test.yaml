@@ -1,0 +1,73 @@
+name: build-and-test-price-service
+run-name: Build and test for Price service
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-test-price-serivce:
+    name: Build and test a Node.js source code
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v3
+      with:
+        node-version: 18
+    - name: Run an Yarn install command
+      uses: borales/actions-yarn@v4
+      with:
+        cmd: install
+    - uses: ArtiomTr/jest-coverage-report-action@v2
+      name: Run Jest command
+      id: coverage
+      with:
+          output: report-markdown
+    - uses: marocchino/sticky-pull-request-comment@v2
+      if: ${{ github.event_name == 'pull_request' }}
+      name: Add a comment in pull requests
+      with:
+          message: ${{ steps.coverage.outputs.report }}    
+  slack-failure-notification:
+    needs: build-and-test-price-serivce
+    if: ${{ always() && github.ref_name == 'main' && contains(needs.*.result, 'failure') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send a notification to Github channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          channel-id: '#github_failure'
+          payload: |
+            {
+              "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+  dispatch-strategy-workflow:
+    name: Dispatch a Strategy service repository workflow
+    needs: build-and-test-price-serivce
+    if: ${{ github.ref_name == 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        name: Dispatch a Strategy service repository workflow
+        with:
+          github-token: ${{ secrets.WORKFLOW_PAT }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'acornworks-education',
+              repo: 'ci-project-strategy',
+              workflow_id: 'build-and-test.yaml',
+              ref: 'main'
+            })    
