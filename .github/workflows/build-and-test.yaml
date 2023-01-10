@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-test-price-serivce:
     name: Build and test a Node.js source code
-    runs-on: self-hosted
+    runs-on: [self-hosted, acornworks]
     steps:
     - name: Checkout Source Code
       uses: actions/checkout@v3
